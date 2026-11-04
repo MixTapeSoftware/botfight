@@ -41,6 +41,8 @@ Each agent in either strategy starts on its role's model. If the harness rejects
 
 ## Shared setup
 
+These steps run once, on the initial invocation. A rotation continuation skips them: it loads the pinned PR URL, deadline, interval, and models from its state file and never re-resolves or creates a PR from the current branch.
+
 1. **Parse arguments.** Use the shared timing defaults from `SKILL.md`. Get the current UTC time (`date -u +%Y-%m-%dT%H:%M:%SZ`) and compute one `deadline = now + duration`. Never recompute it.
 2. **Resolve the PR.** Use `gh pr view` for the current branch. If none exists, push the branch and create one with `gh pr create` against the default branch, the same way fixer step 1 does. Pin the canonical PR URL; reviewers and formatter never create a PR.
 3. **Resolve each role's model** for this harness from the defaults and overrides.
@@ -50,12 +52,12 @@ Each agent in either strategy starts on its role's model. If the harness rejects
 
 Start all four agents in one turn, so they run concurrently. Each agent's prompt names the botfight skill, the exact continuation arguments below, and says it was started by the launcher and must end with its mode's exit report as its final message:
 
-- fixer: `fixer until <deadline> every <interval>`
+- fixer: `fixer until <deadline> every <interval>`, plus the launcher override below
 - reviewer: `reviewer <PR-URL> until <deadline> every <interval>`
 - security: `reviewer <PR-URL> until <deadline> every <interval> -- <security brief>`
 - formatter: `formatter <PR-URL> until <deadline> every <interval>`
 
-Each agent follows its mode's loop, including the fallback to bounded foreground waits when it cannot schedule recurring wakeups. The fixer agent owns the PR title.
+Each agent follows its mode's loop, including the fallback to bounded foreground waits when it cannot schedule recurring wakeups. The fixer agent owns the PR title. **Launcher override for the fixer:** its clean condition (`SKILL.md` step 4) is not an exit; it keeps watching until the deadline, PR close or merge, or a blocker. The reviewers and formatter run until the deadline and can post findings after the fixer goes quiet, so a fixer that exited clean would leave those findings unaddressed and remove the title prefix while the rest of the crew is still active.
 
 Report the launch: the PR URL, the deadline and interval, and each role with its agent ID and the model and effort it actually got. Do not poll the agents. As each one finishes, relay its exit report to the user, putting human items and blockers first.
 
@@ -63,7 +65,7 @@ Report the launch: the PR URL, the deadline and interval, and each role with its
 
 ## Rotation
 
-The launcher is the **rotation coordinator**. It owns the deadline, the PR title, the exit decision, and all loop state; each pass agent does one bounded job, returns a short structured result, and exits. Pass agents follow the referenced mode's rules (bot/human classification, the 6/10 rule, frozen areas, attribution footers, completion markers, fidelity) exactly as in a standalone loop.
+The launcher is the **rotation coordinator**. It owns the deadline, the PR title, the exit decision, and all loop state; each pass agent does one bounded job, returns a short structured result, and exits. Each pass agent checks the deadline before it starts and again immediately before any publication or push; once the deadline has passed it does nothing further and returns "expired". Pass agents follow the referenced mode's rules (bot/human classification, the 6/10 rule, frozen areas, attribution footers, completion markers, fidelity) exactly as in a standalone loop.
 
 ### State
 
@@ -90,6 +92,6 @@ Keep the state in `$(git rev-parse --git-common-dir)/botfight/<PR-number>/rotati
 
 On every exit, including errors: restore the original title as in fixer step 6, then give one combined report: why the crew stopped and rounds run; the fixer exit report from `SKILL.md`; each scope's reviews and findings; the formatter's note link, clarifications, and rejections; and every human item with its draft reply, first.
 
-**Codex specifics.** State `model` and `model_reasoning_effort` explicitly in each spawn request; explicit spawn values take precedence over `[agents]` defaults in `config.toml`. `gpt-6.1-terra` is OpenAI's model for clear writing and needs Codex CLI 0.159.0 or later; on an older CLI, run the formatter passes on the inherited model and say so. OpenAI documents no default or supported effort for it, so leave its effort unset. Subagents inherit the parent session's sandbox and approval policy, so the session must already allow network access and workspace writes, or the fixer cannot push. Rotation needs at most two open agent threads, which fits within `agents.max_concurrent_threads_per_session`.
+**Codex specifics.** State `model` and `model_reasoning_effort` explicitly in each spawn request; explicit spawn values take precedence over `[agents]` defaults in `config.toml`. `gpt-6.1-terra` is OpenAI's model for clear writing and needs Codex CLI 0.159.0 or later; on an older CLI, run the formatter passes on the inherited model and say so. OpenAI documents no default or supported effort for it, so leave its effort unset. Subagents inherit the parent session's sandbox and approval policy, so the session must already allow network access and workspace writes, or the fixer cannot push. Rotation needs at most two open agent threads, which fits within `agents.max_concurrent_threads_per_session`, but completed agents can keep counting against that limit until closed ([openai/codex#22779](https://github.com/openai/codex/issues/22779)). So record each pass agent's result in the state file, then close its thread before starting the next pass. If the runtime offers no way to close a completed agent and a spawn fails on the thread limit, report that as a blocker.
 
 **Grok Build specifics.** Start each pass agent as a `general-purpose` subagent and never request worktree isolation: Grok's worktrees are detached at their base commit, so a fixer there cannot commit to the PR branch. Grok sets subagent models only in config, through `[subagents.models]` in `~/.grok/config.toml`, which maps a subagent type to a model ID; a spawn cannot name its own model. So by default every role runs on the session's model; say so in the launch report, and tell the user that per-role models need a separate subagent type per role mapped in `[subagents.models]`. Between rounds, use Grok's `/loop` (minimum interval 60 seconds) when available, otherwise bounded `sleep` calls.
