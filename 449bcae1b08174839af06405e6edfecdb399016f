@@ -1,0 +1,19 @@
+LICENSE
+  s_ec2f4f4133b55f::t_5fdb00a254b32b 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "449bcae1b08174839af06405e6edfecdb399016f",
+  "prompts": {},
+  "sessions": {
+    "s_ec2f4f4133b55f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f28003f5-c7b0-4351-a7f8-07f496562df5",
+        "model": "unknown"
+      },
+      "human_author": "Chad Fennell <chadfennell@users.noreply.github.com>"
+    }
+  }
+}
