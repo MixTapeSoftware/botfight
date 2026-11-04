@@ -1,28 +1,29 @@
 ---
 name: botfight
-description: Use when asked to run an unattended PR loop — e.g. "run botfight", "fight the bots on this PR", "botfight fixer", "botfight reviewer", or "botfight formatter" — including repeated reviews focused on security or other user-supplied instructions.
+description: Use when asked to run an unattended PR loop — e.g. "run botfight", "fight the bots on this PR", "botfight fixer", "botfight reviewer", "botfight formatter", or "botfight all" — including repeated reviews focused on security or other user-supplied instructions.
 ---
 
 # Botfight — unattended PR review loop
 
 ## Overview
 
-Botfight has three modes: **fixer** (the default coordinator) addresses bot findings on the PR; **reviewer** watches for new PR commits and posts inline findings for the fixer to address; **formatter** keeps a plain-English PR note current and posts clearer restatements of hard-to-follow bot comments. All run unattended and leave human interactions for the user. Comments post from the user's GitHub account, so automated attribution and the bot/human distinction matter in every mode.
+Botfight has three modes, plus a launcher that runs them together: **fixer** (the default coordinator) addresses bot findings on the PR; **reviewer** watches for new PR commits and posts inline findings for the fixer to address; **formatter** keeps a plain-English PR note current and posts clearer restatements of hard-to-follow bot comments. Bare `/botfight` is the **launcher**: it starts the fixer, a general reviewer, a security reviewer, and the formatter each on its own model: as parallel background agents in Claude Code, or as one rotating loop of single-pass agents in Codex. All run unattended and leave human interactions for the user. Comments post from the user's GitHub account, so automated attribution and the bot/human distinction matter in every mode.
 
 All modes read review threads through GraphQL and post reviews and replies with request bodies. Through `gh`, send each body, including read-only GraphQL queries, as a JSON file with `gh api <endpoint> --input <file>.json` and never with `-f`/`-F` field flags, following the `gh api` rules in the root `AGENTS.md`.
 
 ## Invocation and loop state
 
-- With no mode argument, use `fixer`. `/botfight` and `/botfight fixer` are equivalent.
+- With no arguments at all, `/botfight` runs the launcher. `/botfight all [<interval> <duration>] [--model <role>=<model>[@<effort>], ...]` does the same with explicit timing or models. See [references/launcher.md](references/launcher.md).
+- Any other invocation without a mode uses `fixer`; for example `/botfight 10m 2h` is `/botfight fixer 10m 2h`.
 - All modes default to checking every 5 minutes for 1.5 hours. Accept optional interval and duration arguments (for example, `/botfight fixer 10m 2h`). Existing `/botfight 10m 2h` invocations still work.
 - Reviewer accepts an optional PR number or URL and additional free-text review instructions: `/botfight reviewer [<PR-number-or-URL>] [<interval> <duration>] [<instructions>]`. For example, `/botfight reviewer 42 5m 1h focus on security and tenant isolation`. With no target, use the current branch's PR; with no instructions, perform a general code review. Instruction text starts at the first token that is neither a PR number or URL nor an interval-and-duration pair, and everything after a `--` is instruction text whatever it looks like; preserve the full instruction text.
 - `--skills <list>` takes everything after it as a comma-separated list of review areas, for example `/botfight reviewer 42 5m 1h --skills security, ui polish`. Put any PR target and timing before `--skills`. Each area becomes its own reviewer scope, reviewed with the closest matching skill available in the repository; see [references/reviewer.md](references/reviewer.md). Free-text instructions and `--skills` are alternatives.
 - Formatter accepts an optional PR number or URL: `/botfight formatter [<PR-number-or-URL>] [<interval> <duration>]`. See [references/formatter.md](references/formatter.md).
-- Continuations carry the explicit mode: `fixer until <ISO-8601 deadline> every <interval>`, `reviewer <PR-URL> until <ISO-8601 deadline> every <interval>`, or `formatter <PR-URL> until <ISO-8601 deadline> every <interval>`, plus that mode's state. Legacy continuations without a mode remain `fixer`.
+- Continuations carry the explicit mode: `fixer until <ISO-8601 deadline> every <interval>`, `reviewer <PR-URL> until <ISO-8601 deadline> every <interval>`, `formatter <PR-URL> until <ISO-8601 deadline> every <interval>`, or, for a rotation coordinator, `all <PR-URL> until <ISO-8601 deadline> every <interval>` with its state file path, plus that mode's state. Legacy continuations without a mode remain `fixer`.
 
 On first invocation: get the current UTC time (`date -u +%Y-%m-%dT%H:%M:%SZ`), compute `deadline = now + duration`, and carry it in every wakeup prompt. Never recompute the deadline on a continuation — parse it from the args.
 
-**Select the mode before any PR mutation.** For `reviewer`, read [references/reviewer.md](references/reviewer.md); for `formatter`, read [references/formatter.md](references/formatter.md). Follow that loop with the shared attribution below. All fixer sections below apply only to `fixer`; reviewer and formatter never run the fixer's create/fix flow. Formatting is always done in a dedicated sub-agent, never inline in a fixer or reviewer session.
+**Select the mode before any PR mutation.** For the launcher, read [references/launcher.md](references/launcher.md); for `reviewer`, read [references/reviewer.md](references/reviewer.md); for `formatter`, read [references/formatter.md](references/formatter.md). Follow that loop with the shared attribution below. All fixer sections below apply only to `fixer`; reviewer and formatter never run the fixer's create/fix flow. Formatting is always done in a dedicated sub-agent, never inline in a fixer or reviewer session.
 
 ## Fixer loop mechanics
 
