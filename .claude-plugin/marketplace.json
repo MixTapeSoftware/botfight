@@ -1,0 +1,14 @@
+{
+  "name": "mixtape",
+  "owner": {
+    "name": "MixTape Software"
+  },
+  "description": "Agent skills from MixTape Software.",
+  "plugins": [
+    {
+      "name": "mixtape",
+      "source": "./",
+      "description": "MixTape Software agent skills, including botfight: unattended PR fixer, reviewer, and formatter loops."
+    }
+  ]
+}
