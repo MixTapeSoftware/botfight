@@ -15,13 +15,13 @@ The modes can run side by side in separate sessions: the reviewer finds issues, 
 Install the plugin in Claude Code:
 
 ```
-/plugin install botfight --marketplace MixTapeSoftware/skills
+/plugin install botfight --marketplace MixTapeSoftware/botfight
 ```
 
 On Claude Code older than 2.1.275, add the marketplace first:
 
 ```
-/plugin marketplace add MixTapeSoftware/skills
+/plugin marketplace add MixTapeSoftware/botfight
 /plugin install botfight@botfight
 ```
 
