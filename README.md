@@ -151,7 +151,9 @@ Comments from your account without a footer are treated as yours (human).
 ## Files
 
 - [`skills/botfight/SKILL.md`](skills/botfight/SKILL.md): invocation, shared loop state, fixer mode, attribution.
+- [`skills/botfight/references/launcher.md`](skills/botfight/references/launcher.md): bare `/botfight` and `/botfight all`, which run the whole crew.
 - [`skills/botfight/references/reviewer.md`](skills/botfight/references/reviewer.md): reviewer mode.
+- [`skills/botfight/references/state-machines.md`](skills/botfight/references/state-machines.md): the reviewer's state-machine checks.
 - [`skills/botfight/references/formatter.md`](skills/botfight/references/formatter.md): formatter mode.
 
 ## Releasing
