@@ -1,0 +1,21 @@
+.claude-plugin/plugin.json
+  s_63fda9cd44a4da::t_e8316cfb18d51b 8-9
+README.md
+  s_63fda9cd44a4da::t_e8316cfb18d51b 18,24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3d89d7e2d494135212a531f65aec093b7c76a58f",
+  "prompts": {},
+  "sessions": {
+    "s_63fda9cd44a4da": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d10da9da-ba3d-4c27-ae44-6dd3657fa0d6",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chad Fennell <chadfennell@users.noreply.github.com>"
+    }
+  }
+}
