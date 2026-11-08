@@ -1,37 +1,4 @@
-# MixTape Skills
-
-Agent skills from MixTape Software, packaged as the `mixtape` Claude Code plugin. Each directory under `skills/` is one self-contained skill: a `SKILL.md` with frontmatter (`name`, `description`) plus any reference files it links to.
-
-| Skill | What it does |
-| --- | --- |
-| [botfight](skills/botfight/SKILL.md) | Runs an unattended PR loop: a **fixer** that triages review-bot findings and a **reviewer** that posts inline findings for the fixer, ## Installation
-
-Install the plugin in Claude Code:
-
-```
-/plugin install mixtape --marketplace MixTapeSoftware/skills
-```
-
-On Claude Code older than 2.1.275, add the marketplace first:
-
-```
-/plugin marketplace add MixTapeSoftware/skills
-/plugin install mixtape@mixtape
-```
-
-Pull new versions with `/plugin marketplace update mixtape`, or turn on auto-update for the marketplace in `/plugin`. Consumers receive a release when `version` in `.claude-plugin/plugin.json` is bumped, so bump it (semver) with every change you want to ship.
-
-Plugin skills are namespaced, so botfight is also available as `/mixtape:botfight`.
-
-Other agents: copy `skills/botfight` into the agent's skills folder.
-
-ory
-cp -r botfight <your-repo>/.claude/skills/
-```
-
----
-
-# botfight
+# Botfight
 
 Botfight keeps a pull request moving while you are away. It polls the PR on an interval, handles automated review feedback on its own, and leaves everything a human said for you to deal with.
 
@@ -42,6 +9,25 @@ It has three modes:
 - **formatter**: keeps a plain-English PR note current and posts clearer restatements of hard-to-follow bot comments, without adding information.
 
 The modes can run side by side in separate sessions: the reviewer finds issues, the fixer addresses them, and the formatter keeps both readable.
+
+## Installation
+
+Install the plugin in Claude Code:
+
+```
+/plugin install botfight --marketplace MixTapeSoftware/skills
+```
+
+On Claude Code older than 2.1.275, add the marketplace first:
+
+```
+/plugin marketplace add MixTapeSoftware/skills
+/plugin install botfight@botfight
+```
+
+Pull new versions with `/plugin marketplace update botfight`, or turn on auto-update for the marketplace in `/plugin`. The skill runs as `/botfight` (or `/botfight:botfight` if another command already uses that name).
+
+Other agents: copy `skills/botfight` into the agent's skills folder.
 
 ## Requirements
 
@@ -163,6 +149,10 @@ Comments from your account without a footer are treated as yours (human).
 - [`skills/botfight/SKILL.md`](skills/botfight/SKILL.md): invocation, shared loop state, fixer mode, attribution.
 - [`skills/botfight/references/reviewer.md`](skills/botfight/references/reviewer.md): reviewer mode.
 - [`skills/botfight/references/formatter.md`](skills/botfight/references/formatter.md): formatter mode.
+
+## Releasing
+
+Consumers receive a release only when `version` in `.claude-plugin/plugin.json` changes, so bump it (semver) with every change you want to ship.
 
 ## License
 

@@ -1,7 +1,7 @@
 {
-  "name": "mixtape",
+  "name": "botfight",
   "version": "0.1.0",
-  "description": "MixTape Software agent skills, including botfight: unattended PR fixer, reviewer, and formatter loops.",
+  "description": "Unattended PR loop: a fixer that triages review-bot findings, a reviewer that posts inline findings, and a formatter that keeps bot output clear.",
   "author": {
     "name": "MixTape Software"
   },
@@ -11,6 +11,7 @@
   "keywords": [
     "code-review",
     "pull-requests",
-    "automation"
+    "automation",
+    "github"
   ]
 }

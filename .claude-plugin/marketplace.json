@@ -1,14 +1,14 @@
 {
-  "name": "mixtape",
+  "name": "botfight",
   "owner": {
     "name": "MixTape Software"
   },
-  "description": "Agent skills from MixTape Software.",
+  "description": "Botfight, an unattended PR review loop from MixTape Software.",
   "plugins": [
     {
-      "name": "mixtape",
+      "name": "botfight",
       "source": "./",
-      "description": "MixTape Software agent skills, including botfight: unattended PR fixer, reviewer, and formatter loops."
+      "description": "Unattended PR loop: a fixer that triages review-bot findings, a reviewer that posts inline findings, and a formatter that keeps bot output clear."
     }
   ]
 }
