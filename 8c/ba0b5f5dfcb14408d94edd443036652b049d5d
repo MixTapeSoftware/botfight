@@ -3,6 +3,7 @@ skills/botfight/references/launcher.md
   s_03d37fda8c2704::t_00e977b84083f3 60-95
 README.md
   s_03d37fda8c2704::t_21658f0c65a93f 41-43,53-55
+  s_63fda9cd44a4da::t_8acd3468f0384b 11
 skills/botfight/SKILL.md
   s_03d37fda8c2704::t_f6be7de15c4e18 3,10,16-17,22,26
 ---
@@ -16,6 +17,14 @@ skills/botfight/SKILL.md
       "agent_id": {
         "tool": "claude",
         "id": "8d1616ee-7e04-4165-83fc-f5fb9e4fd83a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chad Fennell <chadfennell@users.noreply.github.com>"
+    },
+    "s_63fda9cd44a4da": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d10da9da-ba3d-4c27-ae44-6dd3657fa0d6",
         "model": "claude-opus-5-5"
       },
       "human_author": "Chad Fennell <chadfennell@users.noreply.github.com>"
