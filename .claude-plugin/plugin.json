@@ -1,7 +1,7 @@
 {
   "name": "botfight",
-  "version": "0.1.0",
-  "description": "Unattended PR loop: a fixer that triages review-bot findings, a reviewer that posts inline findings, and a formatter that keeps bot output clear.",
+  "version": "0.2.0",
+  "description": "Unattended PR loop: a fixer that triages review-bot findings, reviewers that post inline findings, and a formatter that keeps bot output clear. Bare /botfight runs them all as parallel agents.",
   "author": {
     "name": "MixTape Software"
   },

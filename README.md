@@ -8,7 +8,7 @@ It has three modes:
 - **reviewer**: watches a PR and posts one inline code review per new head commit, which a fixer loop can then triage.
 - **formatter**: keeps a plain-English PR note current and posts clearer restatements of hard-to-follow bot comments, without adding information.
 
-The modes can run side by side in separate sessions: the reviewer finds issues, the fixer addresses them, and the formatter keeps both readable.
+The modes can run side by side: the reviewer finds issues, the fixer addresses them, and the formatter keeps both readable. Bare `/botfight` runs all of them: the fixer, a general reviewer, a security reviewer, and the formatter, each on its own model. Claude Code runs them as parallel background agents; Codex runs one loop that takes turns, starting a short single-pass agent for each role every round.
 
 ## Installation
 
@@ -38,7 +38,9 @@ Other agents: copy `skills/botfight` into the agent's skills folder.
 ## Usage
 
 ```
-/botfight [fixer] [<interval> <duration>]
+/botfight
+/botfight all [<interval> <duration>] [--model <role>=<model>[@<effort>], ...]
+/botfight fixer [<interval> <duration>]
 /botfight reviewer [<PR-number-or-URL>] [<interval> <duration>] [<instructions>]
 /botfight reviewer [<PR-number-or-URL>] [<interval> <duration>] --skills <area>, <area>, ...
 /botfight formatter [<PR-number-or-URL>] [<interval> <duration>]
@@ -48,7 +50,9 @@ All modes check every **5 minutes** for **1.5 hours** unless told otherwise.
 
 | Example | Meaning |
 | --- | --- |
-| `/botfight` | Fixer on the current branch's PR, 5m interval, 1.5h duration. |
+| `/botfight` | Run fixer, general reviewer, security reviewer, and formatter on the current branch's PR, 5m interval, 1.5h duration. |
+| `/botfight all 10m 2h --model formatter=haiku, security=opus@max` | Same, with custom timing and models. |
+| `/botfight 10m 2h` | Fixer only (any timing without a mode means fixer). |
 | `/botfight fixer 10m 2h` | Fixer, checking every 10 minutes for 2 hours. |
 | `/botfight reviewer` | General review of the current branch's PR. |
 | `/botfight reviewer 42 5m 1h focus on security and tenant isolation` | Review PR #42 with a custom brief. |
@@ -147,7 +151,9 @@ Comments from your account without a footer are treated as yours (human).
 ## Files
 
 - [`skills/botfight/SKILL.md`](skills/botfight/SKILL.md): invocation, shared loop state, fixer mode, attribution.
+- [`skills/botfight/references/launcher.md`](skills/botfight/references/launcher.md): bare `/botfight` and `/botfight all`, which run the whole crew.
 - [`skills/botfight/references/reviewer.md`](skills/botfight/references/reviewer.md): reviewer mode.
+- [`skills/botfight/references/state-machines.md`](skills/botfight/references/state-machines.md): the reviewer's state-machine checks.
 - [`skills/botfight/references/formatter.md`](skills/botfight/references/formatter.md): formatter mode.
 
 ## Releasing
