@@ -1,0 +1,24 @@
+botfight/references/launcher.md
+  s_03d37fda8c2704::t_023240f4f471e3 1-59
+  s_03d37fda8c2704::t_00e977b84083f3 60-95
+README.md
+  s_03d37fda8c2704::t_21658f0c65a93f 33,44-46,56-58
+botfight/SKILL.md
+  s_03d37fda8c2704::t_f6be7de15c4e18 3,10,16-17,22,26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c4819d75c622d3cbf8cde359b65c7b3a70e20eda",
+  "prompts": {},
+  "sessions": {
+    "s_03d37fda8c2704": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8d1616ee-7e04-4165-83fc-f5fb9e4fd83a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chad Fennell <chadfennell@users.noreply.github.com>"
+    }
+  }
+}

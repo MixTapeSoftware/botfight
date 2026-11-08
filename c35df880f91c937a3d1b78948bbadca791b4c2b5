@@ -1,0 +1,16 @@
+botfight/SKILL.md
+  h_f7177274f18031 1-113
+botfight/references/reviewer.md
+  h_f7177274f18031 1-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c35df880f91c937a3d1b78948bbadca791b4c2b5",
+  "prompts": {},
+  "humans": {
+    "h_f7177274f18031": {
+      "author": "Chad Fennell <chadfennell@users.noreply.github.com>"
+    }
+  }
+}
