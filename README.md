@@ -1,4 +1,4 @@
-# Skills
+# MixTape Skills
 
 Agent skills from MixTape Software, packaged as the `mixtape` Claude Code plugin. Each directory under `skills/` is one self-contained skill: a `SKILL.md` with frontmatter (`name`, `description`) plus any reference files it links to.
 
