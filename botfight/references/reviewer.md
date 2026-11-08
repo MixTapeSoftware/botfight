@@ -8,6 +8,10 @@ Use the additional instructions as the review brief. Preserve their full text in
 
 Whatever the brief, use the repository's skills as review guidance: when an available skill covers the brief's area (for example a security skill for a security review), load it and apply its checks. Report missing guidance or access instead of silently claiming that scope was covered.
 
+### State machines
+
+Whenever the head adds or changes UI elements (components, screens, dialogs, forms, flows) or state-bearing logic (booleans, status fields, branching control flow, async lifecycles) within the review scope, read [state-machines.md](state-machines.md) and model that code as finite state machines. Run its integrity checks for dead ends, impossible states, and unhandled events alongside the brief, under every brief and in every `--skills` area sub-agent whose area covers the changed code.
+
 ### Skill-based scopes
 
 With `--skills`, split the list on commas and trim each area. Each area is its own scope, with the area text as its brief. For each area, choose the available skill whose name or description best covers it; the match need not be exact (`ui polish` can match a skill named `ui-review` or one described as UI and UX polish). Load that skill and review the head as it directs, within the area. When no available skill reasonably covers an area, do not review it from general knowledge: report it to the user as an uncovered area so the repository can add a skill for it, and continue with the other areas.
@@ -44,7 +48,7 @@ Each inline comment contains a short issue title, importance score (1–10 using
 
 Read prior threads before posting. Formatter comments restate existing findings; they are not findings to deduplicate against. Do not duplicate an existing finding, including one awaiting action or already declined, just because the head changed. A regression or new evidence can justify a new finding; link the prior discussion and explain what changed. Do not reply to or resolve existing threads. Human questions and conflicts belong in the user report with draft replies; do not open a replacement bot thread to bypass a human decision.
 
-The review summary states the reviewed SHA, scope, finding count, and any inspection limitations. Before its attribution footer, include this machine-readable completion marker with the actual SHA and scope ID:
+The review summary states the reviewed SHA, scope, finding count, any inspection limitations, and the state-machine models described in [state-machines.md](state-machines.md). Before its attribution footer, include this machine-readable completion marker with the actual SHA and scope ID:
 
 ```html
 <!-- botfight:reviewer head=<head-sha> scope=<scope-id> -->
