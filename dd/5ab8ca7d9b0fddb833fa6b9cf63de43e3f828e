@@ -1,0 +1,27 @@
+skills/botfight/references/reviewer.md
+  s_63fda9cd44a4da::t_53228820ac7a8f 15-18
+skills/botfight/references/peak-memory.md
+  s_63fda9cd44a4da::t_5e0fd2a5a87e55 1-33
+.claude-plugin/plugin.json
+  s_63fda9cd44a4da::t_9e63e82bdc6116 3
+.codex-plugin/plugin.json
+  s_63fda9cd44a4da::t_00e32bcf75f86a 3
+README.md
+  s_63fda9cd44a4da::t_67b5cd14f48e3c 126,171
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dd5ab8ca7d9b0fddb833fa6b9cf63de43e3f828e",
+  "prompts": {},
+  "sessions": {
+    "s_63fda9cd44a4da": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d10da9da-ba3d-4c27-ae44-6dd3657fa0d6",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chad Fennell <chadfennell@users.noreply.github.com>"
+    }
+  }
+}
