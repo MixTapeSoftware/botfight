@@ -123,6 +123,7 @@ Reviewer watches an existing PR (it never creates one) and reviews **each new he
 - **Brief**: free-text instructions shape the review. "Focus on security" sets a priority; "only review authentication" sets a hard limit. With no instructions, it reviews correctness, regressions, security, and test coverage.
 - **Skills**: reviewer loads any repository skill that covers the brief. With `--skills`, each comma-separated area is reviewed by its own sub-agent using the closest matching skill and gets its own review. Areas with no matching skill are reported back to you rather than reviewed from general knowledge.
 - **State machines**: when the PR adds or changes UI elements or stateful logic (flags, status fields, branching, async lifecycles), reviewer models that code as finite state machines and checks for dead ends, impossible states, unhandled events, and missing recovery or cleanup. Each finding includes the event sequence that reaches the defect, and the review summary includes the transition tables.
+- **Peak memory**: when the PR adds or changes code that loads, buffers, collects, copies, or caches data, reviewer makes one pass for ways to lower peak memory: streaming instead of loading whole inputs, paginating, releasing references, bounding caches and concurrency. It suggests only reductions that cause no significant regression in speed, correctness, or clarity.
 - **Output**: one GitHub `COMMENT` review per head and scope, never `APPROVE` or `REQUEST_CHANGES`. Findings are inline comments anchored to the diff, each with a title, an importance score on the fixer's 1–10 scale, the trigger and impact, and a suggested fix. When there are no findings, the review is a summary that says so.
 - **Read-only**: reviewer never edits code, commits, pushes, changes the PR title, or replies to or resolves threads. It reads source at the reviewed SHA and doesn't touch your working tree.
 - **Deduplication**: each review summary contains a hidden marker, `<!-- botfight:reviewer head=<sha> scope=<scope-id> -->`, where `scope-id` is the SHA-256 of the instruction text (or `general`). This lets a resumed loop see what it already reviewed and avoid posting duplicates.
@@ -167,6 +168,7 @@ Comments from your account without a footer are treated as yours (human).
 - [`skills/botfight/references/launcher.md`](skills/botfight/references/launcher.md): bare `/botfight` and `/botfight all`, which run the whole crew.
 - [`skills/botfight/references/reviewer.md`](skills/botfight/references/reviewer.md): reviewer mode.
 - [`skills/botfight/references/state-machines.md`](skills/botfight/references/state-machines.md): the reviewer's state-machine checks.
+- [`skills/botfight/references/peak-memory.md`](skills/botfight/references/peak-memory.md): the reviewer's peak-memory pass.
 - [`skills/botfight/references/formatter.md`](skills/botfight/references/formatter.md): formatter mode.
 
 ## Releasing

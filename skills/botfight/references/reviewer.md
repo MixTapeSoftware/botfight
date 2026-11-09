@@ -12,6 +12,10 @@ Whatever the brief, use the repository's skills as review guidance: when an avai
 
 Whenever the head adds or changes UI elements (components, screens, dialogs, forms, flows) or state-bearing logic (booleans, status fields, branching control flow, async lifecycles) within the review scope, read [state-machines.md](state-machines.md) and model that code as finite state machines. Run its integrity checks for dead ends, impossible states, and unhandled events alongside the brief, under every brief and in every `--skills` area sub-agent whose area covers the changed code.
 
+### Peak memory
+
+Whenever the head adds or changes code that loads, buffers, collects, copies, or caches data within the review scope, read [peak-memory.md](peak-memory.md) and make one pass for reductions in peak memory consumption that cause no significant regression. This pass runs under the same briefs and areas as the state-machine check.
+
 ### Skill-based scopes
 
 With `--skills`, split the list on commas and trim each area. Each area is its own scope, with the area text as its brief. For each area, choose the available skill whose name or description best covers it; the match need not be exact (`ui polish` can match a skill named `ui-review` or one described as UI and UX polish). Load that skill and review the head as it directs, within the area. When no available skill reasonably covers an area, do not review it from general knowledge: report it to the user as an uncovered area so the repository can add a skill for it, and continue with the other areas.
