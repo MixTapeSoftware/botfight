@@ -12,7 +12,9 @@ The modes can run side by side: the reviewer finds issues, the fixer addresses t
 
 ## Installation
 
-Install the plugin in Claude Code:
+### Claude Code
+
+Install the plugin:
 
 ```
 /plugin install botfight --marketplace MixTapeSoftware/botfight
@@ -27,7 +29,18 @@ On Claude Code older than 2.1.275, add the marketplace first:
 
 Pull new versions with `/plugin marketplace update botfight`, or turn on auto-update for the marketplace in `/plugin`. The skill runs as `/botfight` (or `/botfight:botfight` if another command already uses that name).
 
-Other agents: copy `skills/botfight` into the agent's skills folder.
+### Codex
+
+```
+codex plugin marketplace add MixTapeSoftware/botfight
+codex plugin add botfight@botfight
+```
+
+Pull new versions with `codex plugin marketplace upgrade botfight`. In a Codex session, ask it to "run botfight" or name a mode, as in "botfight reviewer".
+
+### Other agents
+
+Copy `skills/botfight` into the agent's skills folder.
 
 ## Requirements
 
@@ -158,7 +171,7 @@ Comments from your account without a footer are treated as yours (human).
 
 ## Releasing
 
-Consumers receive a release only when `version` in `.claude-plugin/plugin.json` changes, so bump it (semver) with every change you want to ship.
+Consumers receive a release only when the plugin version changes, so bump `version` (semver) with every change you want to ship. It appears in both `.claude-plugin/plugin.json` (Claude Code) and `.codex-plugin/plugin.json` (Codex); keep the two manifests in step. The marketplace catalogs are `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json`.
 
 ## License
 

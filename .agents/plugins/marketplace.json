@@ -1,0 +1,20 @@
+{
+  "name": "botfight",
+  "interface": {
+    "displayName": "Botfight"
+  },
+  "plugins": [
+    {
+      "name": "botfight",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Coding"
+    }
+  ]
+}

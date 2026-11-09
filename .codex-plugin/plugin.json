@@ -1,0 +1,26 @@
+{
+  "name": "botfight",
+  "version": "0.2.0",
+  "description": "Unattended PR loop: a fixer that triages review-bot findings, reviewers that post inline findings, and a formatter that keeps bot output clear. Bare /botfight runs them all as parallel agents.",
+  "author": {
+    "name": "MixTape Software"
+  },
+  "homepage": "https://github.com/MixTapeSoftware/botfight",
+  "repository": "https://github.com/MixTapeSoftware/botfight",
+  "license": "MIT",
+  "keywords": [
+    "code-review",
+    "pull-requests",
+    "automation",
+    "github"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Botfight",
+    "shortDescription": "Unattended PR loop: fixer, reviewers, and formatter.",
+    "longDescription": "Unattended PR loop: a fixer that triages review-bot findings, reviewers that post inline findings, and a formatter that keeps bot output clear. Bare /botfight runs them all as parallel agents.",
+    "developerName": "MixTape Software",
+    "category": "Coding",
+    "websiteURL": "https://github.com/MixTapeSoftware/botfight"
+  }
+}
