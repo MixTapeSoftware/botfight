@@ -39,7 +39,7 @@ Sources include bot PR summary comments, bot review summaries, inline bot review
 
 The note is a single top-level PR comment from the user's account, created on the first pass and edited in place on later passes (`PATCH repos/{owner}/{repo}/issues/comments/<id>`), never re-posted. Find it by the marker below; if several exist, edit the newest and leave the rest alone.
 
-Write it in plain technical English: short declarative sentences, concrete names, no marketing tone, no filler. Structure:
+Write it in plain technical English: short declarative sentences, concrete names, no marketing tone, no filler, minimal jargon. Favor concise explanations over excessive detail. Structure:
 
 - **What this PR changes**: from the PR description and bot summaries.
 - **Open issues**: one entry per unresolved bot finding, with its file and line, its source score when the source gave one, and a link to the source thread.
