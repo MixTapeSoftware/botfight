@@ -1,0 +1,14 @@
+skills/botfight/references/formatter.md
+  h_f7177274f18031 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "961b0dcd4e897869aba3fea0647b993c5a1a3dc2",
+  "prompts": {},
+  "humans": {
+    "h_f7177274f18031": {
+      "author": "Chad Fennell <chadfennell@users.noreply.github.com>"
+    }
+  }
+}
