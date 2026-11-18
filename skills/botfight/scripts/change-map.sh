@@ -20,8 +20,13 @@ MAX_ROWS=15
 BAR_WIDTH=20
 TAB=$(printf '\t')
 
-gh api --paginate "repos/$1/pulls/$2/files" \
-  --jq '.[] | [.filename, .additions, .deletions] | @tsv' |
+# Fetch before the pipeline: POSIX sh has no pipefail, so a gh failure inside
+# the pipeline would be masked and print "No changed files." with exit 0. With
+# set -e, a failing command substitution in an assignment exits here instead.
+rows=$(gh api --paginate "repos/$1/pulls/$2/files" \
+  --jq '.[] | [.filename, .additions, .deletions] | @tsv')
+
+printf "%s\n" "$rows" |
 awk -F '\t' -v OFS='\t' '
   function tag_for(p,   base) {
     base = p; sub(/.*\//, "", base)
@@ -37,6 +42,7 @@ awk -F '\t' -v OFS='\t' '
     if (n == 2) return parts[1] "/"
     return parts[1] "/" parts[2] "/"
   }
+  NF == 0 { next }
   {
     tag = tag_for($1)
     key = tag != "" ? $1 : group_for($1)

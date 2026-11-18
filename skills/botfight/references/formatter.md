@@ -26,7 +26,7 @@ The one exception is the note's **Where the changes are** section, whose source 
 Rewriting for clarity is a different kind of work from reasoning about code, and doing both in one context degrades both. **Always do the formatting in a dedicated sub-agent**, never inline in a fixer or reviewer session, and never in the formatter coordinator's own context:
 
 - The **coordinator** (this loop) polls the PR, collects source comments, tracks state, and posts or edits formatter comments.
-- Each pass, the coordinator starts a fresh **formatting sub-agent** and gives it only the source comment bodies (with author, link, and anchor), the current PR note if one exists, and this file. The sub-agent returns the revised note (or "unchanged") and a list of clarifications, each with the source comment it restates or "skip".
+- Each pass, the coordinator starts a fresh **formatting sub-agent** and gives it only the source comment bodies (with author, link, and anchor), the current PR note if one exists with its **Where the changes are** section removed, and this file. The sub-agent returns the revised note (or "unchanged") and a list of clarifications, each with the source comment it restates or "skip".
 - The sub-agent also returns a **claim map** for each output: each sentence, list item, and diagram node or edge, paired with the source sentence it restates. The coordinator rejects any output with an unmapped claim, a dropped source detail, or a changed hedge, and posts nothing for it that pass.
 
 When the harness cannot start sub-agents, report that as a blocker and stop rather than formatting inline.

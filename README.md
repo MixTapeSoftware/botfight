@@ -59,7 +59,7 @@ Copy `skills/botfight` into the agent's skills folder.
 /botfight formatter [<PR-number-or-URL>] [<interval> <duration>] [--idle <duration>]
 ```
 
-All modes check every **5 minutes** for **1.5 hours** unless told otherwise. They also stop early once bots have posted no new review activity for **30 minutes**, because a fight that has gone quiet only burns tokens and time. Change that with `--idle <duration>` (placed after any PR and timing), or turn it off with `--idle off`. Fixer replies, formatter comments, and zero-findings review summaries don't count as activity, and neither do human comments or pushes.
+All modes check every **5 minutes** for **1.5 hours** unless told otherwise. They also stop early once bots have posted no new review activity for **30 minutes**, because a fight that has gone quiet only burns tokens and time. Change that with `--idle <duration>` (placed after any PR and timing), or turn it off with `--idle off`. Fixer replies, formatter comments, and zero-findings review summaries don't count as activity, and neither do human comments. A push does restart the clock, so review bots always get the full idle duration to look at a new commit.
 
 | Example | Meaning |
 | --- | --- |
