@@ -52,14 +52,14 @@ Copy `skills/botfight` into the agent's skills folder.
 
 ```
 /botfight
-/botfight all [<interval> <duration>] [--model <role>=<model>[@<effort>], ...]
-/botfight fixer [<interval> <duration>]
-/botfight reviewer [<PR-number-or-URL>] [<interval> <duration>] [<instructions>]
-/botfight reviewer [<PR-number-or-URL>] [<interval> <duration>] --skills <area>, <area>, ...
-/botfight formatter [<PR-number-or-URL>] [<interval> <duration>]
+/botfight all [<interval> <duration>] [--idle <duration>] [--model <role>=<model>[@<effort>], ...]
+/botfight fixer [<interval> <duration>] [--idle <duration>]
+/botfight reviewer [<PR-number-or-URL>] [<interval> <duration>] [--idle <duration>] [<instructions>]
+/botfight reviewer [<PR-number-or-URL>] [<interval> <duration>] [--idle <duration>] --skills <area>, <area>, ...
+/botfight formatter [<PR-number-or-URL>] [<interval> <duration>] [--idle <duration>]
 ```
 
-All modes check every **5 minutes** for **1.5 hours** unless told otherwise.
+All modes check every **5 minutes** for **1.5 hours** unless told otherwise. They also stop early once bots have posted no new review activity for **30 minutes**, because a fight that has gone quiet only burns tokens and time. Change that with `--idle <duration>` (placed after any PR and timing), or turn it off with `--idle off`. Fixer replies, formatter comments, and zero-findings review summaries don't count as activity, and neither do human comments. A push does restart the clock, so review bots always get the full idle duration to look at a new commit.
 
 | Example | Meaning |
 | --- | --- |
@@ -67,6 +67,7 @@ All modes check every **5 minutes** for **1.5 hours** unless told otherwise.
 | `/botfight all 10m 2h --model formatter=haiku, security=opus@max` | Same, with custom timing and models. |
 | `/botfight 10m 2h` | Fixer only (any timing without a mode means fixer). |
 | `/botfight fixer 10m 2h` | Fixer, checking every 10 minutes for 2 hours. |
+| `/botfight fixer 10m 2h --idle 1h` | Same, but stop only after an hour with no new bot reviews. |
 | `/botfight reviewer` | General review of the current branch's PR. |
 | `/botfight reviewer 42 5m 1h focus on security and tenant isolation` | Review PR #42 with a custom brief. |
 | `/botfight reviewer 42 -- 10m is the cache TTL, check it` | Everything after `--` is treated as instructions. |
@@ -112,6 +113,7 @@ The loop ends when any of these is true:
 - The PR is merged or closed.
 - **Clean**: CI is green, there are no unresolved bot threads or new bot comments, and nothing was pushed since the previous iteration. After a push, botfight always waits at least one more interval so review bots can look at the new commit.
 - The deadline passes.
+- **Idle**: no new bot review activity for the idle duration (30 minutes by default).
 - It's blocked on something only you can decide.
 
 The exit report covers why it stopped, findings fixed and declined (with scores and links), human items with draft replies, any frozen areas, CI status, and whether the title prefix was removed.
@@ -134,7 +136,16 @@ Reviewer keeps watching until the deadline, cancellation, or PR close/merge. A c
 
 Formatter watches an existing PR and does two things on each pass:
 
-- **PR note**: one formatter-owned top-level comment, edited in place, that states in plain technical English what the PR changes, which bot-raised issues are open, and which were addressed.
+- **PR note**: one formatter-owned top-level comment, edited in place, that states in plain technical English what the PR changes, which bot-raised issues are open, and which were addressed. It includes a **change map**: a text chart of changed lines by directory, with lockfiles, snapshots, generated, and vendored files called out, so a reviewer can see at a glance where a big PR's lines are.
+
+  ```
+  10 files · 3,932 lines changed (+3,229 −703)
+  Lockfiles, snapshots, generated, vendored: 3,024 lines (77%)
+
+  pnpm-lock.yaml [lockfile]   2,904   74%  ███████████████   +2,400 −504
+  src/api/                      676   17%  ███               +520 −156  3 files
+  ```
+
 - **Clarifications**: where a bot comment or review finding is hard to follow, a reply in its thread that restates the same issue more clearly, using a Mermaid diagram or ASCII sketch when that conveys it better than prose.
 
 **Fidelity is a hard requirement.** Formatter never adds facts, findings, fixes, or opinions, and keeps the source's hedges, scope, and severity. Each output comes with a claim map tying every sentence and diagram element to the source it restates; output with an unmapped claim is not posted.
@@ -170,6 +181,7 @@ Comments from your account without a footer are treated as yours (human).
 - [`skills/botfight/references/state-machines.md`](skills/botfight/references/state-machines.md): the reviewer's state-machine checks.
 - [`skills/botfight/references/peak-memory.md`](skills/botfight/references/peak-memory.md): the reviewer's peak-memory pass.
 - [`skills/botfight/references/formatter.md`](skills/botfight/references/formatter.md): formatter mode.
+- [`skills/botfight/scripts/change-map.sh`](skills/botfight/scripts/change-map.sh): builds the formatter's change map from a PR's file list (needs only `gh`, `awk`, and `sort`).
 
 ## Releasing
 

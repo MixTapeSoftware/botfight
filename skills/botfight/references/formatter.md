@@ -19,12 +19,14 @@ Formatter restates; it never adds. Every claim in a formatter comment must trace
 
 If a restatement cannot be clearer without changing meaning, don't post it.
 
+The one exception is the note's **Where the changes are** section, whose source is the PR's file list rather than any comment. It is produced by a script, posted exactly as the script prints it, and never annotated or interpreted.
+
 ## Run formatting in a separate agent
 
 Rewriting for clarity is a different kind of work from reasoning about code, and doing both in one context degrades both. **Always do the formatting in a dedicated sub-agent**, never inline in a fixer or reviewer session, and never in the formatter coordinator's own context:
 
 - The **coordinator** (this loop) polls the PR, collects source comments, tracks state, and posts or edits formatter comments.
-- Each pass, the coordinator starts a fresh **formatting sub-agent** and gives it only the source comment bodies (with author, link, and anchor), the current PR note if one exists, and this file. The sub-agent returns the revised note (or "unchanged") and a list of clarifications, each with the source comment it restates or "skip".
+- Each pass, the coordinator starts a fresh **formatting sub-agent** and gives it only the source comment bodies (with author, link, and anchor), the current PR note if one exists with its **Where the changes are** section removed, and this file. The sub-agent returns the revised note (or "unchanged") and a list of clarifications, each with the source comment it restates or "skip".
 - The sub-agent also returns a **claim map** for each output: each sentence, list item, and diagram node or edge, paired with the source sentence it restates. The coordinator rejects any output with an unmapped claim, a dropped source detail, or a changed hedge, and posts nothing for it that pass.
 
 When the harness cannot start sub-agents, report that as a blocker and stop rather than formatting inline.
@@ -42,6 +44,7 @@ The note is a single top-level PR comment from the user's account, created on th
 Write it in plain technical English: short declarative sentences, concrete names, no marketing tone, no filler, minimal jargon. Favor concise explanations over excessive detail. Structure:
 
 - **What this PR changes**: from the PR description and bot summaries.
+- **Where the changes are**: the change map below.
 - **Open issues**: one entry per unresolved bot finding, with its file and line, its source score when the source gave one, and a link to the source thread.
 - **Addressed**: findings fixer reports as fixed or declined, with the commit or reason the source states.
 
@@ -51,7 +54,28 @@ Revise the note whenever a source changes: a new head commit, a new or edited bo
 <!-- botfight:formatter note sources=<sha256> -->
 ```
 
-where `sources` is the lowercase hex SHA-256 of the sorted source comment IDs and their `updated_at` values, joined by newlines. A matching digest means the note is current.
+where `sources` is the lowercase hex SHA-256 of the head SHA followed by the sorted source comment IDs and their `updated_at` values, one per line. A matching digest means the note is current.
+
+### Change map
+
+The change map shows reviewers where a PR's changed lines are, so a large line count can be traced to, say, a regenerated `pnpm-lock.yaml` rather than hand-written code. The coordinator builds it at the head SHA with the bundled script, never by hand. The script needs only `gh`, `awk`, and `sort`:
+
+```sh
+sh <skill-dir>/scripts/change-map.sh <owner>/<repo> <number>
+```
+
+The script counts changed lines as additions plus deletions, groups files by directory two levels deep, gives lockfiles, snapshots, generated, and vendored files their own tagged rows, sorts rows by changed lines, and draws each row's share of the total as a bar:
+
+```
+10 files · 3,932 lines changed (+3,229 −703)
+Lockfiles, snapshots, generated, vendored: 3,024 lines (77%)
+
+pnpm-lock.yaml [lockfile]                    2,904   74%  ███████████████       +2,400 −504
+src/api/                                       676   17%  ███                   +520 −156  3 files
+test/api/users.test.ts                         150    4%  █                     +150 −0
+```
+
+Put its output, unchanged, in a plain code block under the **Where the changes are** heading. The coordinator splices it into the note after the formatting sub-agent returns; the sub-agent never sees or edits it, and it is exempt from the claim map. GitHub lists at most 3,000 files per PR; when the PR has more, say so on a line below the block. If the script fails, leave the section out and report it, rather than drawing the map by hand.
 
 ## Clarifications
 
@@ -77,11 +101,11 @@ Post at most one clarification per source revision. When a source is edited, pos
 Use the shared invocation rules, timing defaults, and deadline handling in `SKILL.md`: `/botfight formatter [<PR-number-or-URL>] [<interval> <duration>]`, continued as `formatter <PR-URL> until <ISO-8601 deadline> every <interval>`.
 
 1. **Check the deadline first**, including on continuations. Resolve the supplied PR, or the current branch's PR, and pin it for the loop. If no PR exists, report that and stop; never create one.
-2. **Fetch state**: PR status, head SHA, description, top-level comments, reviews, and review threads (paginate). Closed or merged means exit.
+2. **Fetch state**: PR status, head SHA, description, top-level comments, reviews, and review threads (paginate). Closed or merged means exit, and so does the idle timeout in `SKILL.md`.
 3. **Collect sources** and compare against carried state and existing formatter markers. If the note digest matches and every source revision already has a clarification or a recorded skip, wait.
-4. **Format in a sub-agent** as described above, and check its claim maps.
-5. **Publish**: edit or create the note, then post clarifications. Before posting, re-fetch each source thread; skip any that resolved or gained a human reply since step 2.
-6. **Keep watching until the deadline**, cancellation, or PR close/merge, using a recurring wakeup capped at time remaining. Carry the PR URL, deadline, interval, posting login, note comment ID and digest, and the source revisions already clarified or skipped.
+4. **Format in a sub-agent** as described above, and check its claim maps. If the head SHA changed, rebuild the [change map](#change-map).
+5. **Publish**: splice the change map into the note, edit or create the note, then post clarifications. Before posting, re-fetch each source thread; skip any that resolved or gained a human reply since step 2.
+6. **Keep watching until the deadline**, the idle timeout, cancellation, or PR close/merge, using a recurring wakeup capped at time remaining. Carry the PR URL, deadline, interval, idle duration, `started` time, posting login, note comment ID and digest, and the source revisions already clarified or skipped.
 
 ## Coordination with fixer and reviewer
 
