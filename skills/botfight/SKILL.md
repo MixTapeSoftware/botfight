@@ -13,15 +13,26 @@ All modes read review threads through GraphQL and post reviews and replies with 
 
 ## Invocation and loop state
 
-- With no arguments at all, `/botfight` runs the launcher. `/botfight all [<interval> <duration>] [--model <role>=<model>[@<effort>], ...]` does the same with explicit timing or models. See [references/launcher.md](references/launcher.md).
+- With no arguments at all, `/botfight` runs the launcher. `/botfight all [<interval> <duration>] [--idle <duration>] [--model <role>=<model>[@<effort>], ...]` does the same with explicit timing or models. See [references/launcher.md](references/launcher.md).
 - Any other invocation without a mode uses `fixer`; for example `/botfight 10m 2h` is `/botfight fixer 10m 2h`.
 - All modes default to checking every 5 minutes for 1.5 hours. Accept optional interval and duration arguments (for example, `/botfight fixer 10m 2h`). Existing `/botfight 10m 2h` invocations still work.
+- All modes also stop after **30 minutes with no new bot review activity** (see [Idle timeout](#idle-timeout)). `--idle <duration>` changes it, for example `/botfight fixer 10m 2h --idle 45m`; `--idle off` disables it. Put `--idle` after any PR target and timing and before instructions, `--`, `--skills`, or `--model`.
 - Reviewer accepts an optional PR number or URL and additional free-text review instructions: `/botfight reviewer [<PR-number-or-URL>] [<interval> <duration>] [<instructions>]`. For example, `/botfight reviewer 42 5m 1h focus on security and tenant isolation`. With no target, use the current branch's PR; with no instructions, perform a general code review. Instruction text starts at the first token that is neither a PR number or URL nor an interval-and-duration pair, and everything after a `--` is instruction text whatever it looks like; preserve the full instruction text.
 - `--skills <list>` takes everything after it as a comma-separated list of review areas, for example `/botfight reviewer 42 5m 1h --skills security, ui polish`. Put any PR target and timing before `--skills`. Each area becomes its own reviewer scope, reviewed with the closest matching skill available in the repository; see [references/reviewer.md](references/reviewer.md). Free-text instructions and `--skills` are alternatives.
 - Formatter accepts an optional PR number or URL: `/botfight formatter [<PR-number-or-URL>] [<interval> <duration>]`. See [references/formatter.md](references/formatter.md).
-- Continuations carry the explicit mode: `fixer until <ISO-8601 deadline> every <interval>`, `reviewer <PR-URL> until <ISO-8601 deadline> every <interval>`, `formatter <PR-URL> until <ISO-8601 deadline> every <interval>`, or, for a rotation coordinator, `all <PR-URL> until <ISO-8601 deadline> every <interval>` with its state file path, plus that mode's state. Legacy continuations without a mode remain `fixer`.
+- Continuations carry the explicit mode: `fixer until <ISO-8601 deadline> every <interval>`, `reviewer <PR-URL> until <ISO-8601 deadline> every <interval>`, `formatter <PR-URL> until <ISO-8601 deadline> every <interval>`, or, for a rotation coordinator, `all <PR-URL> until <ISO-8601 deadline> every <interval>` with its state file path, plus that mode's state. Every continuation also ends with `idle <duration> started <ISO-8601 start>`. Legacy continuations without a mode remain `fixer`; legacy continuations without `idle` use the 30-minute default and set `started` to the current time.
 
-On first invocation: get the current UTC time (`date -u +%Y-%m-%dT%H:%M:%SZ`), compute `deadline = now + duration`, and carry it in every wakeup prompt. Never recompute the deadline on a continuation — parse it from the args.
+On first invocation: get the current UTC time (`date -u +%Y-%m-%dT%H:%M:%SZ`), record it as `started`, compute `deadline = now + duration`, and carry both in every wakeup prompt. Never recompute the deadline or `started` on a continuation — parse them from the args.
+
+### Idle timeout
+
+A loop whose bots have gone quiet only burns tokens and time, so every mode, and the launcher's crew, ends once there has been no new **bot review activity** for the idle duration (default 30 minutes). Bot review activity is any bot review, inline review comment, or top-level bot comment (classified as in [Fixer iteration](#1-classify-every-author-first)), except:
+
+- fixer replies, which answer findings rather than raise them;
+- formatter comments, which restate findings;
+- review completion summaries that report zero findings.
+
+Each check, compute `last activity` as the newest `createdAt` among those comments and reviews on the PR, or `started` if none is newer. If `now − last activity` is at least the idle duration, exit with the reason **idle**. Human comments, CI changes, and pushes do not reset the clock: after a push, review bots get the idle duration to respond. Because the clock is read from the PR rather than carried, every mode watching the same PR reaches the same answer.
 
 **Select the mode before any PR mutation.** For the launcher, read [references/launcher.md](references/launcher.md); for `reviewer`, read [references/reviewer.md](references/reviewer.md); for `formatter`, read [references/formatter.md](references/formatter.md). Follow that loop with the shared attribution below. All fixer sections below apply only to `fixer`; reviewer and formatter never run the fixer's create/fix flow. Formatting is always done in a dedicated sub-agent, never inline in a fixer or reviewer session.
 
@@ -35,8 +46,9 @@ On first invocation: get the current UTC time (`date -u +%Y-%m-%dT%H:%M:%SZ`), c
    - PR merged or closed by someone else.
    - Clean: CI green, zero unresolved bot threads, no new bot comments to process (formatter comments don't count), **and** no push since the previous iteration — after any push, run at least one more interval so review bots get a pass at the new commit. On the first invocation, or whenever the carried previous head SHA is absent (a legacy continuation or lost state), there is no previous iteration to compare against: treat the branch as just-pushed, so a clean exit always requires at least one full interval after the loop's last push. A fixer started by the launcher's parallel launch never takes this exit; see [Parallel launch](references/launcher.md#parallel-launch).
    - Deadline reached.
+   - Idle: no bot review activity for the idle duration ([Idle timeout](#idle-timeout)). This applies under the launcher's parallel launch too.
    - Blocked on something only the user can decide.
-5. **If not exiting**: use the harness's recurring-wakeup capability when one is available. Set the delay to the interval, capped at the seconds remaining until the deadline; carry the continuation arguments `fixer until <deadline> every <interval>`, the original title from step 2, the previous head SHA, and a short status reason. If recurring wakeups are unavailable, continue in the foreground using bounded waits. Never claim the loop will continue after returning unless a wakeup was actually scheduled.
+5. **If not exiting**: use the harness's recurring-wakeup capability when one is available. Set the delay to the interval, capped at the seconds remaining until the deadline; carry the continuation arguments `fixer until <deadline> every <interval> idle <idle> started <started>`, the original title from step 2, the previous head SHA, and a short status reason. If recurring wakeups are unavailable, continue in the foreground using bounded waits. Never claim the loop will continue after returning unless a wakeup was actually scheduled.
 6. **On exit — every exit, including timeout, blocked, and errors**: restore the original title recorded in step 2 (never touch a title this loop did not mark), then post the exit report to the user. A leftover robot prefix tells teammates a loop is running when it isn't.
 
 ## Fixer iteration
@@ -103,7 +115,7 @@ Formatter uses:
 
 ## Fixer exit report
 
-- Why the loop ended (clean / deadline / merged / blocked) and iterations run.
+- Why the loop ended (clean / idle / deadline / merged / blocked) and iterations run.
 - Bot findings fixed (score, commit) and declined (score, link).
 - **Human items awaiting the user**, quoted, each with its draft reply.
 - Any frozen code areas from human-vs-bot conflicts.
