@@ -1,0 +1,19 @@
+skills/botfight/SKILL.md
+  s_affc2e42d0e609::t_248960f13e3c95 20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1de3ccaf625c5b5fa5c75d4dc09d4fcc2063892d",
+  "prompts": {},
+  "sessions": {
+    "s_affc2e42d0e609": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "337f76a5-96ab-49dc-9c3d-3cfb37fc760d",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chad Fennell <chadfennell@users.noreply.github.com>"
+    }
+  }
+}
