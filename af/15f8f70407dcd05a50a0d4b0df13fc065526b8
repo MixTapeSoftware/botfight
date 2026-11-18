@@ -1,0 +1,30 @@
+skills/botfight/references/formatter.md
+  s_affc2e42d0e609::t_2db25121483449 29
+skills/botfight/references/launcher.md
+  s_affc2e42d0e609::t_960288756e697b 88
+skills/botfight/scripts/change-map.sh
+  s_affc2e42d0e609::t_c37223934ba551 28
+  s_affc2e42d0e609::t_b09d8ea3282a8f 23-27,29,45
+skills/botfight/SKILL.md
+  s_affc2e42d0e609::t_a21f6aa30e6abb 23
+  s_affc2e42d0e609::t_c7f109292539fd 35
+  s_affc2e42d0e609::t_a3c774f2d295cd 20
+README.md
+  s_affc2e42d0e609::t_464470537ee30b 62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "af15f8f70407dcd05a50a0d4b0df13fc065526b8",
+  "prompts": {},
+  "sessions": {
+    "s_affc2e42d0e609": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "337f76a5-96ab-49dc-9c3d-3cfb37fc760d",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chad Fennell <chadfennell@users.noreply.github.com>"
+    }
+  }
+}
