@@ -1,0 +1,19 @@
+skills/botfight/references/formatter.md
+  s_affc2e42d0e609::t_a3fb04bba10384 51-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0dbd8d8221ef796b6ef41cef97ffac632031628f",
+  "prompts": {},
+  "sessions": {
+    "s_affc2e42d0e609": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "337f76a5-96ab-49dc-9c3d-3cfb37fc760d",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Chad Fennell <chadfennell@users.noreply.github.com>"
+    }
+  }
+}
