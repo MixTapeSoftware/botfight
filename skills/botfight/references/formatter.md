@@ -48,6 +48,13 @@ Write it in plain technical English: short declarative sentences, concrete names
 - **Open issues**: one entry per unresolved bot finding, with its file and line, its source score when the source gave one, and a link to the source thread.
 - **Addressed**: findings fixer reports as fixed or declined, with the commit or reason the source states.
 
+Start every open or addressed entry with a short bold title, so a reader scanning the note can tell the entries apart without reading them. Write it in plain English, three to six words, naming the problem rather than the fix, for example **Idle clock ignores pushes** or **Script hides gh failures**. Mark addressed entries as fixed or declined after the title. The title restates the finding, so the claim map covers it: it must not add a cause, change the severity, or name anything the source doesn't.
+
+```
+- **Script hides gh failures** · fixed in af15f8f · `scripts/change-map.sh:23` · score 6 · [thread](…)
+  A failing `gh api` call printed "No changed files." and exited 0.
+```
+
 Revise the note whenever a source changes: a new head commit, a new or edited bot summary, a new finding, or a thread resolved. When nothing changed, don't edit it. End the note with:
 
 ```html
